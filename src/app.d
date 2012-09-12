@@ -318,7 +318,41 @@ public:
 	
 	
 	/***************************************************************************
+	 * コマンドを機能に割り当てる
 	 * 
+	 * コマンドは以下(括弧内はパラメータ)
+	 * $(UL
+	 *   $(LI startInterruptStopWatch() )
+	 *   $(LI stopInterruptStopWatch() )
+	 *   $(LI resetInterruptStopWatch() )
+	 *   $(LI copyInterruptStopWatchDuration() )
+	 *   $(LI addTaskStopWatch() )
+	 *   $(LI removeActiveTaskStopWatch() )
+	 *   $(LI startActiveTaskStopWatch() )
+	 *   $(LI stopActiveTaskStopWatch() )
+	 *   $(LI resetActiveTaskStopWatch() )
+	 *   $(LI enableActiveTaskStopWatch() )
+	 *   $(LI disableActiveTaskStopWatch() )
+	 *   $(LI renameActiveTaskStopWatch() )
+	 *   $(LI confirmActiveTaskStopWatchName(string) )
+	 *   $(LI copyActiveTaskStopWatchDuration() )
+	 *   $(LI changeActiveTaskStopWatch(size_t(id)) )
+	 *   $(LI loadData(string) )
+	 *   $(LI loadDataWithFilename() )
+	 *   $(LI saveData() )
+	 *   $(LI saveDataWithFilename(string) )
+	 *   $(LI updateDisplay() )
+	 *   $(LI gotoBackground() )
+	 *   $(LI exit() )
+	 * )
+	 * 
+	 * Params:
+	 * args = [_command name, parameters...]
+	 * 
+	 * Examples:
+	 *--------------------------------------------------------------------------
+	 *command(["startInterruptStopWatch"]);
+	 *--------------------------------------------------------------------------
 	 */
 	void command(in string[] args)
 	{

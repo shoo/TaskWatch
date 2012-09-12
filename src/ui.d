@@ -228,7 +228,24 @@ public:
 	
 	
 	/***************************************************************************
+	 * コマンドを機能に割り当てる。
 	 * 
+	 * コマンドは以下(括弧内はパラメータ)
+	 * $(UL
+	 *   $(LI updateDisplay() )
+	 *   $(LI addTask() )
+	 *   $(LI removeTask(size_t(id)) )
+	 *   $(LI changeActiveTask(size_t(id)) )
+	 *   $(LI copyToClipboard(string(id)) )
+	 * )
+	 * 
+	 * Params:
+	 * args = [_command name, parameters...]
+	 * 
+	 * Examples:
+	 *--------------------------------------------------------------------------
+	 *command(["copyToClipboard"], sendData("abcde"));
+	 *--------------------------------------------------------------------------
 	 */
 	shared void command(in string[] args)
 	{
