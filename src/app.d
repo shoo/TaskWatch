@@ -48,6 +48,7 @@ private:
 	Task[]               _tasks;
 	size_t               _activeTaskIndex;
 	Timer                _timer;
+	Config               _config;
 	
 	invariant()
 	{
@@ -91,16 +92,31 @@ private:
 	void resetInterruptStopWatch()
 	{
 		_interruptStopWatch.reset();
+		updateDisplay();
 	}
 	
 	
 	/// ditto
 	void copyInterruptStopWatchDuration()
 	{
-		import std.string: format;
+		import std.format;
 		auto dur = _interruptStopWatch.peek();
-		auto txt = format("%.6f", dur.to!("seconds", real)()/3600);
-		_ui.command(["copyToClipboard", sendData(txt)]);
+		auto app = appender!string();
+		try
+		{
+			formattedWrite(app, _config.fmtCopyForInterrupt,
+				dur.to!("seconds", real)()/3600,
+				dur.to!("seconds", real)()/60,
+				dur.to!("seconds", real)());
+			_ui.command(["copyToClipboard", sendData(app.data)]);
+		}
+		catch (Throwable e)
+		{
+			_ui.command(["showException", sendData(new RuntimeException(
+				"割り込みストップウォッチのコピーで"
+				"無効な書式が指定されました。"
+				"設定を見なおしてください", e))]);
+		}
 	}
 	
 	
@@ -205,10 +221,24 @@ private:
 	/// ditto
 	void copyActiveTaskStopWatchDuration()
 	{
-		import std.string: format;
+		import std.format;
 		auto dur = _tasks[_activeTaskIndex].stopwatch.peek();
-		auto txt = format("%.6f", dur.to!("seconds", real)()/3600);
-		_ui.command(["copyToClipboard", sendData(txt)]);
+		auto app = appender!string();
+		try
+		{
+			formattedWrite(app, _config.fmtCopyForTask,
+				dur.to!("seconds", real)()/3600,
+				dur.to!("seconds", real)()/60,
+				dur.to!("seconds", real)());
+			_ui.command(["copyToClipboard", sendData(app.data)]);
+		}
+		catch (Throwable e)
+		{
+			_ui.command(["showException", sendData(new RuntimeException(
+				"タスクストップウォッチのコピーで"
+				"無効な書式が指定されました"
+				"設定を見なおしてください", e))]);
+		}
 	}
 	
 	/// ditto
@@ -264,40 +294,50 @@ private:
 	 */
 	void showConfig()
 	{
-		
+		_ui.command(["showConfig", sendData(_config)]);
 	}
 	
 	/// ditto
 	void applyConfig(Config cfg)
 	{
-		
+		_config = cfg;
 	}
 	
 	/// ditto
 	void loadConfig()
 	{
-		string filename;
-		loadConfig(filename);
-	}
-	
-	/// ditto
-	void loadConfig(string filename)
-	{
-		
+		import std.file, std.json;
+		if (exists("config.json"))
+		{
+			auto jsonContents = cast(string)std.file.read("config.json");
+			auto json = std.json.parseJSON(jsonContents);
+			_config.fromJson(json);
+		}
 	}
 	
 	/// ditto
 	void saveConfig()
 	{
-		string filename;
-		saveConfig(filename);
+		import std.file, std.json;
+		auto json = _config.toJson();
+		std.file.write("config.json", std.json.toJSON(&json));
 	}
 	
-	/// ditto
-	void saveConfig(string filename)
+	
+	/***************************************************************************
+	 * ユーザーインターフェースとのやり取り
+	 */
+	void updateDisplay()
 	{
-		
+		auto intDur = cast(Duration)_interruptStopWatch.peek();
+		auto app = appender!(Duration[])();
+		foreach (t; _tasks)
+		{
+			app.put(cast(Duration)t.stopwatch.peek());
+		}
+		_ui.command(["updateDisplay", sendData(intDur), sendData(app.data)]);
 	}
+	
 	
 public:
 	/***************************************************************************
@@ -314,6 +354,7 @@ public:
 			command(["updateDisplay"]);
 		};
 		_timer.interval = dur!"msecs"(17);
+		loadConfig();
 	}
 	
 	
@@ -341,6 +382,12 @@ public:
 	 *   $(LI loadDataWithFilename() )
 	 *   $(LI saveData() )
 	 *   $(LI saveDataWithFilename(string) )
+	 *   $(LI showConfig() )
+	 *   $(LI loadConfig() )
+	 *   $(LI loadConfigWithFilename(string) )
+	 *   $(LI saveConfig() )
+	 *   $(LI saveConfigWithFilename(string) )
+	 *   $(LI applyConfig(Config(id)) )
 	 *   $(LI updateDisplay() )
 	 *   $(LI gotoBackground() )
 	 *   $(LI exit() )
@@ -411,18 +458,25 @@ public:
 			loadData(args[1]);
 			break;
 		case "saveData":
-			loadData();
+			saveData();
 			break;
 		case "saveDataWithFilename":
-			loadData(args[1]);
+			saveData(args[1]);
+			break;
+		case "showConfig":
+			showConfig();
+			break;
+		case "loadConfig":
+			loadConfig();
+			break;
+		case "saveConfig":
+			saveConfig();
+			break;
+		case "applyConfig":
+			applyConfig(receiveData!Config(args[1]));
 			break;
 		case "updateDisplay":
-			auto app = appender!(Duration[])();
-			foreach (t; _tasks)
-			{
-				app.put(cast(Duration)t.stopwatch.peek());
-			}
-			_ui.command(["updateDisplay", sendData(cast(Duration)_interruptStopWatch.peek()), sendData(app.data)]);
+			updateDisplay();
 			break;
 		case "gotoBackground":
 			//@@@TODO@@@

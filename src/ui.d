@@ -1,8 +1,10 @@
 ﻿module src.ui;
 
 import core.time;
-import src.common, src.features;
-import src.gui.mainform, src.gui.taskpanel;
+import src.common, src.features, src.sys.config;
+import src.gui.mainform, src.gui.taskpanel, src.gui.configform,
+       src.gui.configpanels.base,
+       src.gui.configpanels.copyformatsettings;
 import dfl.all;
 debug import src.gui.debugform;
 
@@ -14,26 +16,27 @@ class UserInterface: UserInterfaceFeatures
 {
 private:
 	shared CommInterface _comm;
-	MainForm             _mainform;
-	NotifyIcon           _notifyicno;
+	MainForm             _mainForm;
+	NotifyIcon           _notifyIcno;
+	ConfigForm           _configForm;
 	shared SharedControl _sharedControl;
-	debug DebugForm      _dbgform;
+	debug DebugForm      _dbgForm;
 	void createUserInterface()
 	{
 		Application.enableVisualStyles();
 		
 		//--------------------------------------
 		// メインフォームの設定
-		_mainform = new MainForm;
+		_mainForm = new MainForm;
 		
 		debug
 		{
-			_dbgform = new DebugForm(_comm);
-			_mainform.handleCreated ~= (Control c, EventArgs e) => _dbgform.show();
+			_dbgForm = new DebugForm(_comm);
+			_mainForm.handleCreated ~= (Control c, EventArgs e) => _dbgForm.show();
 		}
-		_mainform.chkToggle.click ~= (Control ctrl, EventArgs ea)
+		_mainForm.chkToggle.click ~= (Control ctrl, EventArgs ea)
 		{
-			if (_mainform.chkToggle.checked)
+			if (_mainForm.chkToggle.checked)
 			{
 				_comm.command(["startInterruptStopWatch"]);
 			}
@@ -42,42 +45,70 @@ private:
 				_comm.command(["stopInterruptStopWatch"]);
 			}
 		};
-		_mainform.btnReset.click ~= (Control ctrl, EventArgs ea)
+		_mainForm.btnReset.click ~= (Control ctrl, EventArgs ea)
 		{
 			_comm.command(["resetInterruptStopWatch"]);
 		};
-		_mainform.btnCopy.click ~= (Control ctrl, EventArgs ea)
+		_mainForm.btnCopy.click ~= (Control ctrl, EventArgs ea)
 		{
 			_comm.command(["copyInterruptStopWatchDuration"]);
 		};
-		_mainform.btnAdd.click ~= (Control ctrl, EventArgs ea)
+		_mainForm.btnAdd.click ~= (Control ctrl, EventArgs ea)
 		{
 			_comm.command(["addTaskStopWatch"]);
 		};
 		
 		//--------------------------------------
 		// 共有コントロールの設定
-		_sharedControl = new shared(SharedControl)(_mainform);
+		_sharedControl = new shared(SharedControl)(_mainForm);
 		
 		
 		//@@@TODO@@@ 本処理は現在MainForm内に実装中。こちらに移動予定。
 		/+
 		//--------------------------------------
 		// 通知領域アイコンの設定
-		_notifyicno = new NotifyIcon;
+		_notifyIcno = new NotifyIcon;
 		+/
 		
 		//--------------------------------------
-		// ショートカットの設定
-		_mainform.addShortcut(Keys.HOME, (Object sender, FormShortcutEventArgs e)
+		// 設定ダイアログの設定
+		_configForm = new ConfigForm;
+		void setConfigMenu(string name, ConfigPanel panel)
 		{
-			//_mainform.windowState = FormWindowState.MINIMIZED;
+			auto tn = new TreeNode(name);
+			tn.tag = panel;
+			panel.parent = _configForm.pnlMain;
+			panel.visible = false;
+			_configForm.treeConfig.nodes.add(tn);
+		}
+		setConfigMenu("コピー用書式設定", new CopyFormatSettings);
+		_configForm.treeConfig.afterSelect ~= (Control s, TreeViewEventArgs e)
+		{
+			auto p = cast(Panel)e.node.tag;
+			foreach (c; _configForm.pnlMain.controls)
+			{
+				c.hide();
+			}
+			p.show();
+		};
+		_configForm.onConfigApplied ~= 
+		{
+			_comm.command(["applyConfig", sendData(_configForm.config)]);
+			_comm.command(["saveConfig"]);
+		};
+		
+		
+		//--------------------------------------
+		// ショートカットの設定
+		_mainForm.addShortcut(Keys.HOME, (Object s, FormShortcutEventArgs e)
+		{
+			//_mainForm.windowState = FormWindowState.MINIMIZED;
 			_comm.command(["gotoBackground"]);
 		});
 		
 		//--------------------------------------
 		// ホットキーの設定
-		Application.addHotkey(Keys.WINDOWS|Keys.CONTROL|Keys.HOME, (Object sender, KeyEventArgs e)
+		Application.addHotkey(Keys.WINDOWS|Keys.CONTROL|Keys.HOME, (Object s, KeyEventArgs e)
 		{
 			_comm.command(["updateDisplay"]);
 		});
@@ -94,7 +125,7 @@ private:
 		{
 			auto p = cast(TaskPanel)c.parent;
 			assert(p);
-			_comm.command(["changeActiveTaskStopWatch", sendData(_mainform.taskPanels.controls.indexOf(p))]);
+			_comm.command(["changeActiveTaskStopWatch", sendData(_mainForm.taskPanels.controls.indexOf(p))]);
 		};
 		tp.btnRemove.click ~= (Control c, EventArgs e)
 		{
@@ -123,14 +154,14 @@ private:
 		{
 			_comm.command(["copyActiveTaskStopWatchDuration"]);
 		};
-		_mainform.taskPanels.controls.add(tp);
+		_mainForm.taskPanels.controls.add(tp);
 		tp.radioTask.performClick();
 	}
 	
 	///
 	void removeTask(size_t idx)
 	{
-		_mainform.taskPanels.controls.remove(_mainform.taskPanels.controls[idx]);
+		_mainForm.taskPanels.controls.remove(_mainForm.taskPanels.controls[idx]);
 	}
 	
 	
@@ -139,41 +170,43 @@ private:
 	 */
 	void hide()
 	{
-		//_mainform.hideAndStop();
+		//_mainForm.hideAndStop();
 	}
 	
 	
 	/// ditto
 	void show()
 	{
-		//_mainform.hideAndStop();
+		//_mainForm.hideAndStop();
 	}
 	
 	
 	/// ditto
-	void config()
+	void showConfig(Config cfg)
 	{
-		
+		_configForm.config = cfg;
+		_configForm.show();
+	}
+	
+	/// ditto
+	void showException(Throwable e)
+	{
+		Application.onThreadException(e);
 	}
 	
 	/// ditto
 	void updateDisplay(Duration intDur, Duration[] taskDurs)
 	{
-		assert(_mainform.taskPanels.controls.length == taskDurs.length);
+		assert(_mainForm.taskPanels.controls.length == taskDurs.length);
 		import std.string: format;
 		string newtxt;
-		if (_mainform.chkToggle.checked || _mainform.txtDurInterrupt.textLength == 0)
+		newtxt = format("%d:%02d:%02d.%03d", intDur.hours, intDur.minutes, intDur.seconds, intDur.fracSec.msecs);
+		if (_mainForm.txtDurInterrupt.text != newtxt)
+			_mainForm.txtDurInterrupt.text = newtxt;
+		foreach (i; 0.._mainForm.taskPanels.controls.length)
 		{
-			newtxt = format("%d:%02d:%02d.%03d", intDur.hours, intDur.minutes, intDur.seconds, intDur.fracSec.msecs);
-			if (_mainform.txtDurInterrupt.text != newtxt)
-				_mainform.txtDurInterrupt.text = newtxt;
-		}
-		foreach (i; 0.._mainform.taskPanels.controls.length)
-		{
-			auto p = cast(TaskPanel)_mainform.taskPanels.controls[i];
+			auto p = cast(TaskPanel)_mainForm.taskPanels.controls[i];
 			assert(p);
-			if (!p.chkToggle.checked || !p.radioTask.checked)
-				continue;
 			auto dur = taskDurs[i];
 			newtxt = format("%d:%02d:%02d.%03d", dur.hours, dur.minutes, dur.seconds, dur.fracSec.msecs);
 			if (p.txtDurTask.text != newtxt)
@@ -185,11 +218,11 @@ private:
 	/// ditto
 	void changeActiveTask(size_t idx)
 	{
-		if (!_mainform.taskPanels.controls.length)
+		if (!_mainForm.taskPanels.controls.length)
 			return;
-		auto p = cast(TaskPanel)_mainform.taskPanels.controls[idx];
+		auto p = cast(TaskPanel)_mainForm.taskPanels.controls[idx];
 		assert(p);
-		foreach (c2; _mainform.taskPanels.controls)
+		foreach (c2; _mainForm.taskPanels.controls)
 		{
 			auto p2 = cast(TaskPanel)c2;
 			if (p2 is null)
@@ -237,6 +270,8 @@ public:
 	 *   $(LI removeTask(size_t(id)) )
 	 *   $(LI changeActiveTask(size_t(id)) )
 	 *   $(LI copyToClipboard(string(id)) )
+	 *   $(LI showConfig(Config(id)) )
+	 *   $(LI showException(Throwable(id)) )
 	 * )
 	 * 
 	 * Params:
@@ -273,6 +308,12 @@ public:
 			case "copyToClipboard":
 				(cast()ui).copyToClipboard(receiveData!string(args[1]));
 				break;
+			case "showConfig":
+				(cast()ui).showConfig(receiveData!Config(args[1]));
+				break;
+			case "showException":
+				(cast()ui).showException(receiveData!Throwable(args[1]));
+				break;
 			default:
 				
 			}
@@ -285,7 +326,7 @@ public:
 	 */
 	shared void exit()
 	{
-		clear(_mainform);
+		clear(_mainForm);
 		Application.exitThread();
 	}
 	
@@ -295,6 +336,6 @@ public:
 	 */
 	void run()
 	{
-		Application.run(_mainform);
+		Application.run(_mainForm);
 	}
 }
