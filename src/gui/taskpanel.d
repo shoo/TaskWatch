@@ -7,7 +7,9 @@
 module src.gui.taskpanel;
 import dfl.all;
 
-
+/*******************************************************************************
+ * 
+ */
 class TaskPanel: dfl.panel.Panel
 {
 	// Do not modify or move this block of variables.
@@ -70,6 +72,9 @@ class TaskPanel: dfl.panel.Panel
 	}
 	
 	
+	/***************************************************************************
+	 * 
+	 */
 	this()
 	{
 		initializeTaskPanel();

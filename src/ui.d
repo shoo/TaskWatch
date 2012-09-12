@@ -2,10 +2,14 @@
 
 import core.time;
 import src.common, src.features;
-import src.gui.mainform, src.gui.taskpanel, src.gui.controlpanel;
+import src.gui.mainform, src.gui.taskpanel;
 import dfl.all;
 debug import src.gui.debugform;
 
+
+/*******************************************************************************
+ * 
+ */
 class UserInterface: UserInterfaceFeatures
 {
 private:
@@ -212,12 +216,20 @@ private:
 	
 	
 public:
+	
+	/***************************************************************************
+	 * 
+	 */
 	this(shared CommInterface comm)
 	{
 		_comm = comm;
 		createUserInterface();
 	}
 	
+	
+	/***************************************************************************
+	 * 
+	 */
 	shared void command(in string[] args)
 	{
 		_sharedControl.delayInvoke( function(Control xctrl, shared UserInterface ui, immutable(string)[] args)
@@ -250,12 +262,20 @@ public:
 		}, this, args.idup);
 	}
 	
+	
+	/***************************************************************************
+	 * 
+	 */
 	shared void exit()
 	{
 		clear(_mainform);
 		Application.exitThread();
 	}
 	
+	
+	/***************************************************************************
+	 * 
+	 */
 	void run()
 	{
 		Application.run(_mainform);

@@ -11,14 +11,22 @@ import src.ui, src.sys.timer, src.sys.task, src.sys.config;
  */
 shared class CommInstance: CommInterface
 {
+private:
 	shared AppInterface _app;
 	
+public:
+	/***************************************************************************
+	 * 
+	 */
 	this(AppInterface app)
 	{
 		_app = cast(shared)app;
 		
 	}
 	
+	/***************************************************************************
+	 * 
+	 */
 	void command(in string[] cmds)
 	{
 		(cast()_app).command(cmds);
@@ -292,6 +300,9 @@ private:
 	}
 	
 public:
+	/***************************************************************************
+	 * 
+	 */
 	this(string[] args)
 	{
 		_args  = args;
@@ -304,6 +315,11 @@ public:
 		};
 		_timer.interval = dur!"msecs"(17);
 	}
+	
+	
+	/***************************************************************************
+	 * 
+	 */
 	void command(in string[] args)
 	{
 		debug writeln(args);
@@ -386,6 +402,10 @@ public:
 		
 	}
 	
+	
+	/***************************************************************************
+	 * 
+	 */
 	void run()
 	{
 		_timer.start();

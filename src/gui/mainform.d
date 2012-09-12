@@ -7,6 +7,9 @@ module src.gui.mainform;
 import dfl.all;
 
 
+/*******************************************************************************
+ * 
+ */
 class MainForm: dfl.form.Form
 {
 	// Do not modify or move this block of variables.
@@ -24,6 +27,9 @@ class MainForm: dfl.form.Form
 	//~Entice Designer variables end here.
 	
 	
+	/***************************************************************************
+	 * 
+	 */
 	this()
 	{
 		initializeMainForm();

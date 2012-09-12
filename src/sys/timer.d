@@ -20,6 +20,9 @@ public:
 	Handler!(void delegate()) onTimer;
 	
 	
+	/***************************************************************************
+	 * 
+	 */
 	this()
 	{
 		_timer = unique!(dfl.timer.Timer)();
