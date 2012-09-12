@@ -377,6 +377,9 @@ public:
 		case "gotoBackground":
 			//@@@TODO@@@
 			break;
+		case "exit":
+			_ui.exit();
+			break;
 		default:
 			
 		}
@@ -387,6 +390,7 @@ public:
 	{
 		_timer.start();
 		(cast()_ui).run();
+		_timer.stop();
 	}
 	
 }
