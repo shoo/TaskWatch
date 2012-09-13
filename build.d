@@ -1,5 +1,6 @@
 immutable
 	DEFAULT_SRCDIR   = ["src"],
+	DEFAULT_EXTFILES = ["res\\resources.res"],
 	DEFAULT_OUTPUT   = "TaskWatch",
 	DEFAULT_DOC      = false,
 	DEFAULT_TEST     = false,
@@ -23,6 +24,7 @@ else:
 void main(string[] args)
 {
 	string[] srcdir;
+	string[] extfiles;
 	Options opt;
 	getopt(args,
 		std.getopt.config.bundling,
@@ -38,8 +40,10 @@ void main(string[] args)
 		"warn|w", &opt.warning,
 		"property|prop|p", &opt.property,
 		std.getopt.config.noBundling,
-		"src|s", &srcdir);
-	if (srcdir) opt.src = srcdir;
+		"src|s", &srcdir,
+		"ext|x", &extfiles);
+	if (srcdir)   opt.src = srcdir;
+	if (extfiles) opt.ext = extfiles;
 	while (!args.empty())
 	{
 		if (args.front() == "--")
@@ -87,6 +91,7 @@ struct Options
 	bool warning  = DEFAULT_WARNING;
 	bool property = DEFAULT_PROPERTY;
 	string[] src  = DEFAULT_SRCDIR;
+	string[] ext  = DEFAULT_EXTFILES;
 	string obj    = DEFAULT_OBJDIR;
 	string output = DEFAULT_OUTPUT;
 	string[] options;
@@ -108,6 +113,7 @@ int compile(Options opt)
 		{
 			if (!ss.isDir && ss.extension == ".d") opts ~= ss;
 		}
+		if (opt.ext)         opts ~= opt.ext;
 		if (opt.lib)         opts ~= ["-version=BUILD_DUMMY", "-run", "build.d"];
 	}
 	else
@@ -126,6 +132,7 @@ int compile(Options opt)
 		{
 			if (!ss.isDir && ss.extension == ".d") opts ~= ss;
 		}
+		if (opt.ext)      opts ~= opt.ext;
 	}
 	
 	writeln("dmd " ~ std.string.join(opts, " "));

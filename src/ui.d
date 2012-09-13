@@ -17,20 +17,15 @@ class UserInterface: UserInterfaceFeatures
 private:
 	shared CommInterface _comm;
 	MainForm             _mainForm;
-	NotifyIcon           _notifyIcno;
+	NotifyIcon           _notifyIcon;
 	ConfigForm           _configForm;
 	shared SharedControl _sharedControl;
 	debug DebugForm      _dbgForm;
-	Icon[]               _icons;
 	
 	
 	void createUserInterface()
 	{
 		Application.enableVisualStyles();
-		
-		// アイコンのロード
-		_icons ~= new Icon(r"res\settings16.ico");
-		_icons ~= new Icon(r"res\settings32.ico");
 		
 		//--------------------------------------
 		// メインフォームの設定
@@ -65,22 +60,24 @@ private:
 			_comm.command(["addTaskStopWatch"]);
 		};
 		
-		_mainForm.btnConfig.image = _icons[1];
+		_mainForm.btnConfig.image = Application.resources.getIcon(202);
 		_mainForm.btnConfig.click ~= (Control ctrl, EventArgs ea)
 		{
 			_comm.command(["showConfig"]);
 		};
+		_mainForm.icon = Application.resources.getIcon(101);
 		//--------------------------------------
 		// 共有コントロールの設定
 		_sharedControl = new shared(SharedControl)(_mainForm);
 		
 		
 		//@@@TODO@@@ 本処理は現在MainForm内に実装中。こちらに移動予定。
-		/+
 		//--------------------------------------
 		// 通知領域アイコンの設定
-		_notifyIcno = new NotifyIcon;
-		+/
+		_notifyIcon = new NotifyIcon;
+		_notifyIcon.text = "TaskWatch";
+		_notifyIcon.icon = SystemIcons.application;
+		
 		
 		//--------------------------------------
 		// 設定ダイアログの設定
@@ -108,7 +105,7 @@ private:
 			_comm.command(["applyConfig", sendData(_configForm.config)]);
 			_comm.command(["saveConfig"]);
 		};
-		
+		_configForm.icon = Application.resources.getIcon(202);
 		
 		//--------------------------------------
 		// ショートカットの設定
@@ -181,14 +178,16 @@ private:
 	 */
 	void hide()
 	{
-		//_mainForm.hideAndStop();
+		_mainForm.hide();
+		_notifyIcon.visible = true;
 	}
 	
 	
 	/// ditto
 	void show()
 	{
-		//_mainForm.hideAndStop();
+		_notifyIcon.visible = false;
+		_mainForm.show();
 	}
 	
 	
@@ -241,12 +240,12 @@ private:
 			if (p2 is p)
 			{
 				p2.activateTask();
-				p2.btnConfig.image = _icons[1];
+				p2.btnConfig.image = Application.resources.getIcon(202);
 			}
 			else
 			{
 				p2.disactivateTask();
-				p2.btnConfig.image = _icons[0];
+				p2.btnConfig.image = Application.resources.getIcon("SETTINGS16", false);
 			}
 		}
 	}
@@ -340,6 +339,7 @@ public:
 	shared void exit()
 	{
 		clear(_mainForm);
+		clear(_configForm);
 		Application.exitThread();
 	}
 	
