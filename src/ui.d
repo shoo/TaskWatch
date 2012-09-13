@@ -21,9 +21,16 @@ private:
 	ConfigForm           _configForm;
 	shared SharedControl _sharedControl;
 	debug DebugForm      _dbgForm;
+	Icon[]               _icons;
+	
+	
 	void createUserInterface()
 	{
 		Application.enableVisualStyles();
+		
+		// アイコンのロード
+		_icons ~= new Icon(r"res\settings16.ico");
+		_icons ~= new Icon(r"res\settings32.ico");
 		
 		//--------------------------------------
 		// メインフォームの設定
@@ -58,6 +65,11 @@ private:
 			_comm.command(["addTaskStopWatch"]);
 		};
 		
+		_mainForm.btnConfig.image = _icons[1];
+		_mainForm.btnConfig.click ~= (Control ctrl, EventArgs ea)
+		{
+			_comm.command(["showConfig"]);
+		};
 		//--------------------------------------
 		// 共有コントロールの設定
 		_sharedControl = new shared(SharedControl)(_mainForm);
@@ -155,7 +167,6 @@ private:
 			_comm.command(["copyActiveTaskStopWatchDuration"]);
 		};
 		_mainForm.taskPanels.controls.add(tp);
-		tp.radioTask.performClick();
 	}
 	
 	///
@@ -230,10 +241,12 @@ private:
 			if (p2 is p)
 			{
 				p2.activateTask();
+				p2.btnConfig.image = _icons[1];
 			}
 			else
 			{
 				p2.disactivateTask();
+				p2.btnConfig.image = _icons[0];
 			}
 		}
 	}

@@ -17,11 +17,13 @@ class TaskPanel: dfl.panel.Panel
 	dfl.button.RadioButton radioTask;
 	dfl.button.CheckBox chkToggle;
 	dfl.textbox.TextBox txtDurTask;
-	dfl.button.Button btnReset;
-	dfl.panel.Panel panel2;
 	dfl.button.Button btnCopy;
+	dfl.panel.Panel panel2;
+	dfl.button.Button btnReset;
 	dfl.panel.Panel panel3;
 	dfl.button.Button btnRemove;
+	dfl.panel.Panel panel1;
+	dfl.button.Button btnConfig;
 	//~Entice Designer variables end here.
 	
 	
@@ -42,7 +44,7 @@ class TaskPanel: dfl.panel.Panel
 			bottom = 4;
 		}
 		radioTask.checked = true;
-		height = 40;
+		height = 32+4+4;
 		txtDurTask.font = new dfl.all.Font(txtDurTask.font.name, 14.5);
 	}
 	
@@ -67,7 +69,7 @@ class TaskPanel: dfl.panel.Panel
 			bottom = 2;
 		}
 		radioTask.checked = false;
-		height = 20;
+		height = 16+2+2;
 		txtDurTask.font = new dfl.all.Font(txtDurTask.font.name, 9);
 	}
 	
@@ -112,7 +114,7 @@ class TaskPanel: dfl.panel.Panel
 		//~DFL Panel
 		name = "TaskPanel";
 		dock = dfl.all.DockStyle.TOP;
-		bounds = dfl.all.Rect(0, 0, 420, 32);
+		bounds = dfl.all.Rect(0, 0, 448, 32);
 		//~DFL dfl.button.RadioButton=radioTask
 		radioTask = new dfl.button.RadioButton();
 		radioTask.name = "radioTask";
@@ -167,6 +169,18 @@ class TaskPanel: dfl.panel.Panel
 		btnRemove.text = "Del";
 		btnRemove.bounds = dfl.all.Rect(336, 0, 48, 32);
 		btnRemove.parent = this;
+		//~DFL dfl.panel.Panel=panel1
+		panel1 = new dfl.panel.Panel();
+		panel1.name = "panel1";
+		panel1.dock = dfl.all.DockStyle.LEFT;
+		panel1.bounds = dfl.all.Rect(384, 0, 16, 32);
+		panel1.parent = this;
+		//~DFL dfl.button.Button=btnConfig
+		btnConfig = new dfl.button.Button();
+		btnConfig.name = "btnConfig";
+		btnConfig.dock = dfl.all.DockStyle.LEFT;
+		btnConfig.bounds = dfl.all.Rect(400, 0, 32, 32);
+		btnConfig.parent = this;
 		//~Entice Designer 0.8.5.02 code ends here.
 	}
 }

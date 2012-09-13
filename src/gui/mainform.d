@@ -22,6 +22,8 @@ class MainForm: dfl.form.Form
 	dfl.button.Button btnReset;
 	dfl.panel.Panel panel1;
 	dfl.button.Button btnAdd;
+	dfl.panel.Panel panel3;
+	dfl.button.Button btnConfig;
 	dfl.groupbox.GroupBox grpTasks;
 	dfl.panel.Panel taskPanels;
 	//~Entice Designer variables end here.
@@ -64,12 +66,12 @@ class MainForm: dfl.form.Form
 		//~Entice Designer 0.8.5.02 code begins here.
 		//~DFL Form
 		text = "My Form";
-		clientSize = dfl.all.Size(424, 254);
+		clientSize = dfl.all.Size(472, 254);
 		//~DFL dfl.panel.Panel=pnlInterrupt
 		pnlInterrupt = new dfl.panel.Panel();
 		pnlInterrupt.name = "pnlInterrupt";
 		pnlInterrupt.dock = dfl.all.DockStyle.TOP;
-		pnlInterrupt.bounds = dfl.all.Rect(0, 0, 424, 40);
+		pnlInterrupt.bounds = dfl.all.Rect(0, 0, 472, 40);
 		pnlInterrupt.parent = this;
 		//~DFL dfl.button.CheckBox=chkToggle
 		chkToggle = new dfl.button.CheckBox();
@@ -118,18 +120,30 @@ class MainForm: dfl.form.Form
 		btnAdd.text = "Add";
 		btnAdd.bounds = dfl.all.Rect(320, 0, 48, 40);
 		btnAdd.parent = pnlInterrupt;
+		//~DFL dfl.panel.Panel=panel3
+		panel3 = new dfl.panel.Panel();
+		panel3.name = "panel3";
+		panel3.dock = dfl.all.DockStyle.LEFT;
+		panel3.bounds = dfl.all.Rect(368, 0, 16, 40);
+		panel3.parent = pnlInterrupt;
+		//~DFL dfl.button.Button=btnConfig
+		btnConfig = new dfl.button.Button();
+		btnConfig.name = "btnConfig";
+		btnConfig.dock = dfl.all.DockStyle.LEFT;
+		btnConfig.bounds = dfl.all.Rect(384, 0, 32, 40);
+		btnConfig.parent = pnlInterrupt;
 		//~DFL dfl.groupbox.GroupBox=grpTasks
 		grpTasks = new dfl.groupbox.GroupBox();
 		grpTasks.name = "grpTasks";
 		grpTasks.dock = dfl.all.DockStyle.FILL;
 		grpTasks.text = "Tasks";
-		grpTasks.bounds = dfl.all.Rect(0, 40, 424, 214);
+		grpTasks.bounds = dfl.all.Rect(0, 40, 472, 214);
 		grpTasks.parent = this;
 		//~DFL dfl.panel.Panel=taskPanels
 		taskPanels = new dfl.panel.Panel();
 		taskPanels.name = "taskPanels";
 		taskPanels.dock = dfl.all.DockStyle.FILL;
-		taskPanels.bounds = dfl.all.Rect(4, 16, 416, 194);
+		taskPanels.bounds = dfl.all.Rect(8, 20, 456, 186);
 		taskPanels.parent = grpTasks;
 		//~Entice Designer 0.8.5.02 code ends here.
 	}

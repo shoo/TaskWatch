@@ -49,6 +49,12 @@ class ConfigForm: dfl.form.Form
 		{
 			hide();
 		};
+		
+		closing ~= (Object s, CancelEventArgs e)
+		{
+			hide();
+			e.cancel = true;
+		};
 	}
 	
 	

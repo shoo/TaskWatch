@@ -4,6 +4,7 @@ import core.time;
 import std.datetime, std.array;
 import src.common, src.features;
 import src.ui, src.sys.timer, src.sys.task, src.sys.config;
+import src.misc.escseq;
 
 
 /*******************************************************************************
@@ -104,7 +105,7 @@ private:
 		auto app = appender!string();
 		try
 		{
-			formattedWrite(app, _config.fmtCopyForInterrupt,
+			formattedWrite(app, _config.fmtCopyForInterrupt.unescapeSequence(),
 				dur.to!("seconds", real)()/3600,
 				dur.to!("seconds", real)()/60,
 				dur.to!("seconds", real)());
@@ -226,7 +227,7 @@ private:
 		auto app = appender!string();
 		try
 		{
-			formattedWrite(app, _config.fmtCopyForTask,
+			formattedWrite(app, _config.fmtCopyForTask.unescapeSequence(),
 				dur.to!("seconds", real)()/3600,
 				dur.to!("seconds", real)()/60,
 				dur.to!("seconds", real)());
@@ -252,7 +253,7 @@ private:
 		auto oldidx = _activeTaskIndex;
 		_activeTaskIndex = targetidx;
 		
-		if (targetidx != _activeTaskIndex && _tasks[oldidx].stopwatch.running)
+		if (oldidx != _activeTaskIndex && _tasks[oldidx].stopwatch.running)
 			_tasks[oldidx].stopwatch.stop();
 		
 		startActiveTaskStopWatch();
