@@ -30,12 +30,9 @@ private:
 		//--------------------------------------
 		// メインフォームの設定
 		_mainForm = new MainForm;
+		_mainForm.icon = Application.resources.getIcon(101);
 		
-		debug
-		{
-			_dbgForm = new DebugForm(_comm);
-			_mainForm.handleCreated ~= (Control c, EventArgs e) => _dbgForm.show();
-		}
+		// 有効無効切り替えボタン
 		_mainForm.chkToggle.click ~= (Control ctrl, EventArgs ea)
 		{
 			if (_mainForm.chkToggle.checked)
@@ -47,25 +44,40 @@ private:
 				_comm.command(["stopInterruptStopWatch"]);
 			}
 		};
+		// リセットボタン
 		_mainForm.btnReset.click ~= (Control ctrl, EventArgs ea)
 		{
 			_comm.command(["resetInterruptStopWatch"]);
 		};
+		// コピーボタン
 		_mainForm.btnCopy.click ~= (Control ctrl, EventArgs ea)
 		{
 			_comm.command(["copyInterruptStopWatchDuration"]);
 		};
+		// 追加ボタン
 		_mainForm.btnAdd.click ~= (Control ctrl, EventArgs ea)
 		{
 			_comm.command(["addTaskStopWatch"]);
 		};
 		
+		// 設定ボタン
 		_mainForm.btnConfig.image = Application.resources.getIcon(202);
 		_mainForm.btnConfig.click ~= (Control ctrl, EventArgs ea)
 		{
 			_comm.command(["showConfig"]);
 		};
-		_mainForm.icon = Application.resources.getIcon(101);
+		
+		
+		// 最小化時の挙動
+		_mainForm.resize ~= (Control ctrl, EventArgs e)
+		{
+			if (_mainForm.windowState == FormWindowState.MINIMIZED)
+			{
+				hide();
+			}
+		};
+		
+		
 		//--------------------------------------
 		// 共有コントロールの設定
 		_sharedControl = new shared(SharedControl)(_mainForm);
@@ -76,8 +88,22 @@ private:
 		// 通知領域アイコンの設定
 		_notifyIcon = new NotifyIcon;
 		_notifyIcon.text = "TaskWatch";
-		_notifyIcon.icon = SystemIcons.application;
-		
+		_notifyIcon.icon = Application.resources.getIcon(101);
+		_notifyIcon.contextMenu = new ContextMenu;
+		_notifyIcon.click ~= (Object s, EventArgs e)
+		{
+			show();
+		};
+		MenuItem mi;
+		with (mi = new MenuItem)
+		{
+			mi.text = "もとに戻す";
+			mi.click ~= (Object s, EventArgs e)
+			{
+				show();
+			};
+		}
+		_notifyIcon.contextMenu.menuItems.add(mi);
 		
 		//--------------------------------------
 		// 設定ダイアログの設定
@@ -121,6 +147,14 @@ private:
 		{
 			_comm.command(["updateDisplay"]);
 		});
+		
+		//--------------------------------------
+		// デバッグ用設定
+		debug
+		{
+			_dbgForm = new DebugForm(_comm);
+			_mainForm.handleCreated ~= (Control c, EventArgs e) => _dbgForm.show();
+		}
 	}
 	
 	
@@ -188,6 +222,10 @@ private:
 	{
 		_notifyIcon.visible = false;
 		_mainForm.show();
+		if (_mainForm.windowState == FormWindowState.MINIMIZED)
+		{
+			_mainForm.windowState = FormWindowState.NORMAL;
+		}
 	}
 	
 	
