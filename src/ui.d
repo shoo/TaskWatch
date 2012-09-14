@@ -44,16 +44,19 @@ private:
 				_comm.command(["stopInterruptStopWatch"]);
 			}
 		};
+		
 		// リセットボタン
 		_mainForm.btnReset.click ~= (Control ctrl, EventArgs ea)
 		{
 			_comm.command(["resetInterruptStopWatch"]);
 		};
+		
 		// コピーボタン
 		_mainForm.btnCopy.click ~= (Control ctrl, EventArgs ea)
 		{
 			_comm.command(["copyInterruptStopWatchDuration"]);
 		};
+		
 		// 追加ボタン
 		_mainForm.btnAdd.click ~= (Control ctrl, EventArgs ea)
 		{
@@ -73,7 +76,7 @@ private:
 		{
 			if (_mainForm.windowState == FormWindowState.MINIMIZED)
 			{
-				hide();
+				_comm.command(["gotoBackground"]);
 			}
 		};
 		
@@ -92,15 +95,26 @@ private:
 		_notifyIcon.contextMenu = new ContextMenu;
 		_notifyIcon.click ~= (Object s, EventArgs e)
 		{
-			show();
+			_comm.command(["gotoForeground"]);
 		};
 		MenuItem mi;
+		// ウィンドウをもとに戻す
 		with (mi = new MenuItem)
 		{
 			mi.text = "もとに戻す";
 			mi.click ~= (Object s, EventArgs e)
 			{
-				show();
+				_comm.command(["gotoForeground"]);
+			};
+		}
+		_notifyIcon.contextMenu.menuItems.add(mi);
+		// 終了
+		with (mi = new MenuItem)
+		{
+			mi.text = "終了";
+			mi.click ~= (Object s, EventArgs e)
+			{
+				_comm.command(["exit"]);
 			};
 		}
 		_notifyIcon.contextMenu.menuItems.add(mi);
@@ -283,7 +297,7 @@ private:
 			else
 			{
 				p2.disactivateTask();
-				p2.btnConfig.image = Application.resources.getIcon("SETTINGS16", false);
+				p2.btnConfig.image = Application.resources.getIcon(201, false);
 			}
 		}
 	}
@@ -357,6 +371,12 @@ public:
 				break;
 			case "copyToClipboard":
 				(cast()ui).copyToClipboard(receiveData!string(args[1]));
+				break;
+			case "show":
+				(cast()ui).show();
+				break;
+			case "hide":
+				(cast()ui).hide();
 				break;
 			case "showConfig":
 				(cast()ui).showConfig(receiveData!Config(args[1]));

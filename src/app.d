@@ -339,6 +339,17 @@ private:
 		_ui.command(["updateDisplay", sendData(intDur), sendData(app.data)]);
 	}
 	
+	/// ditto
+	void gotoForeground()
+	{
+		_ui.command(["show"]);
+	}
+	
+	/// ditto
+	void gotoBackground()
+	{
+		_ui.command(["hide"]);
+	}
 	
 public:
 	/***************************************************************************
@@ -390,6 +401,7 @@ public:
 	 *   $(LI saveConfigWithFilename(string) )
 	 *   $(LI applyConfig(Config(id)) )
 	 *   $(LI updateDisplay() )
+	 *   $(LI gotoForeground() )
 	 *   $(LI gotoBackground() )
 	 *   $(LI exit() )
 	 * )
@@ -479,8 +491,11 @@ public:
 		case "updateDisplay":
 			updateDisplay();
 			break;
+		case "gotoForeground":
+			gotoForeground();
+			break;
 		case "gotoBackground":
-			//@@@TODO@@@
+			gotoBackground();
 			break;
 		case "exit":
 			_ui.exit();
