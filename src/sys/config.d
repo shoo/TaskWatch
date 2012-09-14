@@ -40,8 +40,10 @@ struct Config
 		JSONValue json;
 		json.type = JSON_TYPE.OBJECT;
 		
-		json.setValue("fmtCopyForInterrupt", fmtCopyForInterrupt);
-		json.setValue("fmtCopyForTask",      fmtCopyForTask);
+		json.setValue("fmtCopyForInterrupt",          fmtCopyForInterrupt);
+		json.setValue("fmtCopyForTask",               fmtCopyForTask);
+		json.setValue("stopInterruptWithBackground",  stopInterruptWithBackground);
+		json.setValue("startInterruptWithForeground", startInterruptWithForeground);
 		
 		return json;
 	}
@@ -51,7 +53,9 @@ struct Config
 	 */
 	void fromJson(JSONValue json)
 	{
-		fmtCopyForInterrupt = json.getValue("fmtCopyForInterrupt", "");
-		fmtCopyForTask      = json.getValue("fmtCopyForTask",      "");
+		fmtCopyForInterrupt          = json.getValue("fmtCopyForInterrupt",          "");
+		fmtCopyForTask               = json.getValue("fmtCopyForTask",               "");
+		stopInterruptWithBackground  = json.getValue("startInterruptWithForeground", false);
+		startInterruptWithForeground = json.getValue("startInterruptWithForeground", false);
 	}
 }
