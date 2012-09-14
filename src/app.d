@@ -343,12 +343,22 @@ private:
 	void gotoForeground()
 	{
 		_ui.command(["show"]);
+		_timer.start();
+		if (_config.startInterruptWithForeground)
+		{
+			startInterruptStopWatch();
+		}
 	}
 	
 	/// ditto
 	void gotoBackground()
 	{
 		_ui.command(["hide"]);
+		_timer.stop();
+		if (_config.stopInterruptWithBackground)
+		{
+			stopInterruptStopWatch();
+		}
 	}
 	
 public:
@@ -514,7 +524,8 @@ public:
 	{
 		_timer.start();
 		(cast()_ui).run();
-		_timer.stop();
+		if (_timer.running)
+			_timer.stop();
 	}
 	
 }

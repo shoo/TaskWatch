@@ -4,7 +4,8 @@ import core.time;
 import src.common, src.features, src.sys.config;
 import src.gui.mainform, src.gui.taskpanel, src.gui.configform,
        src.gui.configpanels.base,
-       src.gui.configpanels.copyformatsettings;
+       src.gui.configpanels.copyformatsettings,
+       src.gui.configpanels.visibulechangebehaviorsettings;
 import dfl.all;
 debug import src.gui.debugform;
 
@@ -131,6 +132,7 @@ private:
 			_configForm.treeConfig.nodes.add(tn);
 		}
 		setConfigMenu("コピー用書式設定", new CopyFormatSettings);
+		setConfigMenu("表示変更時の挙動", new VisibleChangeBehaviorSettings);
 		_configForm.treeConfig.afterSelect ~= (Control s, TreeViewEventArgs e)
 		{
 			auto p = cast(Panel)e.node.tag;
@@ -159,7 +161,7 @@ private:
 		// ホットキーの設定
 		Application.addHotkey(Keys.WINDOWS|Keys.CONTROL|Keys.HOME, (Object s, KeyEventArgs e)
 		{
-			_comm.command(["updateDisplay"]);
+			_comm.command(["gotoForeground"]);
 		});
 		
 		//--------------------------------------

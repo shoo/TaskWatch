@@ -79,7 +79,7 @@ public:
 	/***************************************************************************
 	 * 
 	 */
-	bool running()
+	bool running() @property inout
 	{
 		return _running;
 	}
