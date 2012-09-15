@@ -4,9 +4,11 @@ import core.time;
 import src.common, src.features, src.sys.config, src.sys.task;
 import src.gui.mainform, src.gui.taskpanel, src.gui.configform,
        src.gui.taskconfigform,
+       src.gui.maincontextmenu,
        src.gui.configpanels.base,
        src.gui.configpanels.copyformatsettings,
-       src.gui.configpanels.visibulechangebehaviorsettings;
+       src.gui.configpanels.visibulechangebehaviorsettings,
+       src.gui.configpanels.saveloadsettings;
 import dfl.all;
 debug import src.gui.debugform;
 
@@ -24,7 +26,7 @@ private:
 	TaskConfigForm       _taskConfigForm;
 	shared SharedControl _sharedControl;
 	debug DebugForm      _dbgForm;
-	
+	MainContextMenu      _contextMenu;
 	
 	/***************************************************************************
 	 * 
@@ -73,7 +75,7 @@ private:
 		_mainForm.btnConfig.image = Application.resources.getIcon(202);
 		_mainForm.btnConfig.click ~= (Control ctrl, EventArgs ea)
 		{
-			_comm.command(["showConfig"]);
+			showMenu();
 		};
 		
 		
@@ -86,6 +88,12 @@ private:
 			}
 		};
 		
+		// 閉じる時の挙動
+		_mainForm.closing ~= (Control ctrl, CancelEventArgs e)
+		{
+			_comm.command(["exit"]);
+			e.cancel = true;
+		};
 		
 		//--------------------------------------
 		// 共有コントロールの設定
@@ -126,6 +134,10 @@ private:
 		_notifyIcon.contextMenu.menuItems.add(mi);
 		
 		//--------------------------------------
+		// コンテキストメニュー
+		_contextMenu = new MainContextMenu(_comm);
+		
+		//--------------------------------------
 		// 設定ダイアログの設定
 		_configForm = new ConfigForm;
 		// 設定項目の設定
@@ -139,6 +151,7 @@ private:
 		}
 		setConfigMenu("コピー用書式設定", new CopyFormatSettings);
 		setConfigMenu("表示変更時の挙動", new VisibleChangeBehaviorSettings);
+		setConfigMenu("保存・読込",       new SaveLoadSettings);
 		// 設定項目の選択
 		_configForm.treeConfig.afterSelect ~= (Control s, TreeViewEventArgs e)
 		{
@@ -294,6 +307,12 @@ private:
 		}
 	}
 	
+	
+	/// ditto
+	void showMenu()
+	{
+		_contextMenu.show(_mainForm, Control.mousePosition);
+	}
 	
 	/// ditto
 	void showConfig(Config cfg)
@@ -514,6 +533,9 @@ public:
 			case "showSaveDataDialog":
 				(cast()ui).showSaveDataDialog();
 				break;
+			case "exit":
+				(cast()ui).exit();
+				break;
 			default:
 				
 			}
@@ -524,10 +546,12 @@ public:
 	/***************************************************************************
 	 * 
 	 */
-	shared void exit()
+	void exit()
 	{
 		clear(_mainForm);
+		clear(_contextMenu);
 		clear(_configForm);
+		clear(_taskConfigForm);
 		Application.exitThread();
 	}
 	

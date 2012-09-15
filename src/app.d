@@ -371,6 +371,18 @@ private:
 		}
 	}
 	
+	/***************************************************************************
+	 * アプリケーションの挙動
+	 */
+	void exit()
+	{
+		_ui.command(["exit"]);
+		if (_config.saveDataAtAppExit)
+		{
+			saveData(_config.autoSaveAndLoadFilename);
+		}
+	}
+	
 public:
 	/***************************************************************************
 	 * 
@@ -387,6 +399,12 @@ public:
 		};
 		_timer.interval = dur!"msecs"(17);
 		loadConfig();
+		if (_config.loadDataAtAppStart)
+		{
+			import std.file;
+			if (exists(_config.autoSaveAndLoadFilename))
+				loadData(_config.autoSaveAndLoadFilename);
+		}
 	}
 	
 	
@@ -518,7 +536,7 @@ public:
 			gotoBackground();
 			break;
 		case "exit":
-			_ui.exit();
+			exit();
 			break;
 		default:
 			
