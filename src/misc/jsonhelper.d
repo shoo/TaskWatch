@@ -58,6 +58,13 @@ private @property JSONValue json(T)(in T x)
 	return v;
 }
 
+private @property JSONValue json(T)(in T x)
+	if (is(typeof({JSONValue j = x.toJson();})))
+{
+	return x.toJson();
+}
+
+
 /*******************************************************************************
  *
  */
@@ -73,6 +80,7 @@ void setValue(T)(ref JSONValue v, string name, in T val)
 {
 	v.object[name] = json(to!string(val));
 }
+
 
 /*******************************************************************************
  *
@@ -161,6 +169,23 @@ T getValue(T)(in ref JSONValue v, string name, T defaultVal = T.init)
 
 /// ditto
 T getValue(T)(in ref JSONValue v, string name, T defaultVal = T.init)
+	if (is(typeof(
+	{
+		T val;
+		JSONValue json;
+		val.fromJson(json);
+	})))
+{
+	T ret = defaultVal;
+	if (auto x = name in v.object)
+	{
+		ret.fromJson(*x);
+	}
+	return ret;
+}
+
+/// ditto
+T getValue(T)(in ref JSONValue v, string name, T defaultVal = T.init)
 	if (!isSomeString!(T) && isArray!(T))
 {
 	T ret = defaultVal;
@@ -170,7 +195,7 @@ T getValue(T)(in ref JSONValue v, string name, T defaultVal = T.init)
 		if (x.type == JSON_TYPE.ARRAY)
 		{
 			ret.length = x.array.length;
-			foreach (i; 0..x.array.length)
+			foreach (ref i; 0..x.array.length)
 			{
 				static if (isSomeString!E)
 				{
@@ -202,6 +227,11 @@ T getValue(T)(in ref JSONValue v, string name, T defaultVal = T.init)
 				{
 					if (x.array[i].type == JSON_TYPE.STRING)
 						ret[i] = to!E(x.array[i].str);
+				}
+				else static if (is(typeof({ ret[i].fromJson(x.array[i]); })))
+				{
+					if (x.array[i].type == JSON_TYPE.OBJECT)
+						ret[i].fromJson(x.array[i]);
 				}
 				else static assert(0, "Unknown format");
 			}

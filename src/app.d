@@ -4,7 +4,7 @@ import core.time;
 import std.datetime, std.array;
 import src.common, src.features;
 import src.ui, src.sys.timer, src.sys.task, src.sys.config;
-import src.misc.escseq;
+import src.misc.escseq, src.misc.jsonhelper;
 
 
 /*******************************************************************************
@@ -115,7 +115,7 @@ private:
 		{
 			_ui.command(["showException", sendData(new RuntimeException(
 				"割り込みストップウォッチのコピーで"
-				"無効な書式が指定されました。"
+				"無効な書式が指定されました。\n"
 				"設定を見なおしてください", e))]);
 		}
 	}
@@ -237,7 +237,7 @@ private:
 		{
 			_ui.command(["showException", sendData(new RuntimeException(
 				"タスクストップウォッチのコピーで"
-				"無効な書式が指定されました"
+				"無効な書式が指定されました。\n"
 				"設定を見なおしてください", e))]);
 		}
 	}
@@ -266,27 +266,42 @@ private:
 	 */
 	void loadData()
 	{
-		string filename;
-		loadData(filename);
+		_ui.command(["showLoadDataDialog"]);
 	}
 	
 	/// ditto
 	void loadData(string filename)
 	{
-		
+		import std.file, std.json;
+		auto json = parseJSON(cast(string)std.file.read(filename));
+		auto idx = json.getValue("activeTaskIndex",    _activeTaskIndex);
+		auto d = TickDuration.from!"usecs"(json.getValue("interruptStopWatch", 0UL));
+		_interruptStopWatch.setMeasured(d);
+		_tasks = json.getValue("tasks", _tasks);
+		_ui.command(["clearAllTask"]);
+		foreach (t; _tasks)
+		{
+			_ui.command(["addTask"]);
+		}
+		changeActiveTaskStopWatch(idx);
 	}
 	
 	/// ditto
 	void saveData()
 	{
-		string filename;
-		saveData(filename);
+		_ui.command(["showSaveDataDialog"]);
 	}
 	
 	/// ditto
 	void saveData(string filename)
 	{
-		
+		import std.file, std.json;
+		JSONValue json;
+		json.type = JSON_TYPE.OBJECT;
+		json.setValue("activeTaskIndex",    _activeTaskIndex);
+		json.setValue("interruptStopWatch", _interruptStopWatch.peek().usecs);
+		json.setValue("tasks",              _tasks);
+		std.file.write(filename, toJSON(&json));
 	}
 	
 	

@@ -255,6 +255,15 @@ private:
 		_mainForm.taskPanels.controls.remove(_mainForm.taskPanels.controls[idx]);
 	}
 	
+	///
+	void clearAllTask()
+	{
+		while (_mainForm.taskPanels.controls.length)
+		{
+			_mainForm.taskPanels.controls.removeAt(_mainForm.taskPanels.controls.length-1);
+		}
+	}
+	
 	
 	///
 	void configTask(Task t)
@@ -328,7 +337,9 @@ private:
 	{
 		if (!_mainForm.taskPanels.controls.length)
 			return;
+		import std.stdio; writeln("xxx@@", _mainForm.taskPanels.controls.length);
 		auto p = cast(TaskPanel)_mainForm.taskPanels.controls[idx];
+		import std.stdio; writeln("xxx@@");
 		assert(p);
 		foreach (c2; _mainForm.taskPanels.controls)
 		{
@@ -345,6 +356,65 @@ private:
 				p2.disactivateTask();
 				p2.btnConfig.image = Application.resources.getIcon(201, false);
 			}
+		}
+	}
+	
+	/***************************************************************************
+	 * データの保存/読み込み
+	 */
+	void showLoadDataDialog()
+	{
+		import std.file;
+		auto dialog = new OpenFileDialog;
+		with (dialog)
+		{
+			checkFileExists  = true;
+			checkPathExists  = true;
+			defaultExt       = ".json";
+			dereferenceLinks = true;
+			fileName         = "data.json";
+			filter           = "*.json データファイル|*.json";
+			filterIndex      = 0;
+			//initialDirectory = getcwd();
+			restoreDirectory = true;
+			showHelp         = true;
+			title            = "データファイルの読み込み";
+			validateNames    = true;
+		}
+		auto res = dialog.showDialog();
+		if (res == DialogResult.OK)
+		{
+			_comm.command(["loadDataWithFilename", dialog.fileName]);
+		}
+	}
+	
+	/***************************************************************************
+	 * 
+	 */
+	void showSaveDataDialog()
+	{
+		import std.file;
+		auto dialog = new SaveFileDialog;
+		with (dialog)
+		{
+			checkFileExists  = false;
+			checkPathExists  = true;
+			defaultExt       = ".json";
+			dereferenceLinks = true;
+			fileName         = "data.json";
+			filter           = "*.json データファイル|*.json";
+			filterIndex      = 0;
+			//initialDirectory = getcwd();
+			restoreDirectory = true;
+			showHelp         = true;
+			title            = "データファイルの読み込み";
+			validateNames    = true;
+			overwritePrompt     = true;
+		}
+		auto res = dialog.showDialog();
+		if (res == DialogResult.OK)
+		{
+			_comm.command(["saveDataWithFilename", dialog.fileName]);
 		}
 	}
 	
@@ -382,6 +452,8 @@ public:
 	 *   $(LI copyToClipboard(string(id)) )
 	 *   $(LI showConfig(Config(id)) )
 	 *   $(LI showException(Throwable(id)) )
+	 *   $(LI showLoadDataDialog() )
+	 *   $(LI showSaveDataDialog() )
 	 * )
 	 * 
 	 * Params:
@@ -412,6 +484,9 @@ public:
 			case "removeTask":
 				(cast()ui).removeTask(receiveData!size_t(args[1]));
 				break;
+			case "clearAllTask":
+				(cast()ui).clearAllTask();
+				break;
 			case "configTask":
 				(cast()ui).configTask(receiveData!Task(args[1]));
 				break;
@@ -432,6 +507,12 @@ public:
 				break;
 			case "showException":
 				(cast()ui).showException(receiveData!Throwable(args[1]));
+				break;
+			case "showLoadDataDialog":
+				(cast()ui).showLoadDataDialog();
+				break;
+			case "showSaveDataDialog":
+				(cast()ui).showSaveDataDialog();
 				break;
 			default:
 				
