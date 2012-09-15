@@ -1,8 +1,9 @@
 ﻿module src.ui;
 
 import core.time;
-import src.common, src.features, src.sys.config;
+import src.common, src.features, src.sys.config, src.sys.task;
 import src.gui.mainform, src.gui.taskpanel, src.gui.configform,
+       src.gui.taskconfigform,
        src.gui.configpanels.base,
        src.gui.configpanels.copyformatsettings,
        src.gui.configpanels.visibulechangebehaviorsettings;
@@ -20,10 +21,14 @@ private:
 	MainForm             _mainForm;
 	NotifyIcon           _notifyIcon;
 	ConfigForm           _configForm;
+	TaskConfigForm       _taskConfigForm;
 	shared SharedControl _sharedControl;
 	debug DebugForm      _dbgForm;
 	
 	
+	/***************************************************************************
+	 * 
+	 */
 	void createUserInterface()
 	{
 		Application.enableVisualStyles();
@@ -123,6 +128,7 @@ private:
 		//--------------------------------------
 		// 設定ダイアログの設定
 		_configForm = new ConfigForm;
+		// 設定項目の設定
 		void setConfigMenu(string name, ConfigPanel panel)
 		{
 			auto tn = new TreeNode(name);
@@ -133,6 +139,7 @@ private:
 		}
 		setConfigMenu("コピー用書式設定", new CopyFormatSettings);
 		setConfigMenu("表示変更時の挙動", new VisibleChangeBehaviorSettings);
+		// 設定項目の選択
 		_configForm.treeConfig.afterSelect ~= (Control s, TreeViewEventArgs e)
 		{
 			auto p = cast(Panel)e.node.tag;
@@ -142,12 +149,28 @@ private:
 			}
 			p.show();
 		};
+		// 設定の適用時の動作
 		_configForm.onConfigApplied ~= 
 		{
 			_comm.command(["applyConfig", sendData(_configForm.config)]);
 			_comm.command(["saveConfig"]);
 		};
-		_configForm.icon = Application.resources.getIcon(202);
+		
+		// アイコン
+		_configForm.icon = Application.resources.getIcon(202, false);
+		
+		//--------------------------------------
+		// タスク設定
+		_taskConfigForm = new TaskConfigForm;
+		
+		// 設定適用時の挙動
+		_taskConfigForm.onConfigApplied ~=
+		{
+			_comm.command(["confirmActiveTaskStopWatchConfig", sendData(_taskConfigForm.task)]);
+		};
+		
+		// アイコン
+		_taskConfigForm.icon = Application.resources.getIcon(202, false);
 		
 		//--------------------------------------
 		// ショートカットの設定
@@ -180,18 +203,21 @@ private:
 	void addTask()
 	{
 		auto tp = new TaskPanel;
+		// アクティブタスクの切り替えラジオボタン
 		tp.radioTask.click ~= (Control c, EventArgs e)
 		{
 			auto p = cast(TaskPanel)c.parent;
 			assert(p);
 			_comm.command(["changeActiveTaskStopWatch", sendData(_mainForm.taskPanels.controls.indexOf(p))]);
 		};
+		// 削除ボタン
 		tp.btnRemove.click ~= (Control c, EventArgs e)
 		{
 			auto p = cast(TaskPanel)c.parent;
 			assert(p);
 			_comm.command(["removeActiveTaskStopWatch"]);
 		};
+		// 有効無効の切り替えトグルボタン
 		tp.chkToggle.click ~= (Control c, EventArgs e)
 		{
 			auto p = cast(TaskPanel)c.parent;
@@ -205,13 +231,20 @@ private:
 				_comm.command(["disableActiveTaskStopWatch"]);
 			}
 		};
+		// リセットボタン
 		tp.btnReset.click ~= (Control c, EventArgs e)
 		{
 			_comm.command(["resetActiveTaskStopWatch"]);
 		};
+		// コピーボタン
 		tp.btnCopy.click ~= (Control c, EventArgs e)
 		{
 			_comm.command(["copyActiveTaskStopWatchDuration"]);
+		};
+		// 設定ボタン
+		tp.btnConfig.click ~= (Control c, EventArgs e)
+		{
+			_comm.command(["configActiveTaskStopWatch"]);
 		};
 		_mainForm.taskPanels.controls.add(tp);
 	}
@@ -220,6 +253,14 @@ private:
 	void removeTask(size_t idx)
 	{
 		_mainForm.taskPanels.controls.remove(_mainForm.taskPanels.controls[idx]);
+	}
+	
+	
+	///
+	void configTask(Task t)
+	{
+		_taskConfigForm.task = t;
+		_taskConfigForm.show();
 	}
 	
 	
@@ -259,9 +300,9 @@ private:
 	}
 	
 	/// ditto
-	void updateDisplay(Duration intDur, Duration[] taskDurs)
+	void updateDisplay(Duration intDur, immutable(Task)[] tasks)
 	{
-		assert(_mainForm.taskPanels.controls.length == taskDurs.length);
+		assert(_mainForm.taskPanels.controls.length == tasks.length);
 		import std.string: format;
 		string newtxt;
 		newtxt = format("%d:%02d:%02d.%03d", intDur.hours, intDur.minutes, intDur.seconds, intDur.fracSec.msecs);
@@ -271,7 +312,10 @@ private:
 		{
 			auto p = cast(TaskPanel)_mainForm.taskPanels.controls[i];
 			assert(p);
-			auto dur = taskDurs[i];
+			auto t = tasks[i];
+			if (p.lblName.text != t.name)
+				p.lblName.text = t.name;
+			auto dur = cast(Duration)t.stopwatch.peek();
 			newtxt = format("%d:%02d:%02d.%03d", dur.hours, dur.minutes, dur.seconds, dur.fracSec.msecs);
 			if (p.txtDurTask.text != newtxt)
 				p.txtDurTask.text = newtxt;
@@ -294,7 +338,7 @@ private:
 			if (p2 is p)
 			{
 				p2.activateTask();
-				p2.btnConfig.image = Application.resources.getIcon(202);
+				p2.btnConfig.image = Application.resources.getIcon(202, false);
 			}
 			else
 			{
@@ -358,15 +402,18 @@ public:
 			{
 			case "updateDisplay":
 				assert(args.length == 3);
-				auto durIntSw   = receiveData!Duration(args[1]);
-				auto durTaskSws = receiveData!(Duration[])(args[2]);
-				(cast()ui).updateDisplay(durIntSw, durTaskSws);
+				auto durIntSw = receiveData!Duration(args[1]);
+				auto durTasks = receiveData!(immutable(Task)[])(args[2]);
+				(cast()ui).updateDisplay(durIntSw, durTasks);
 				break;
 			case "addTask":
 				(cast()ui).addTask();
 				break;
 			case "removeTask":
 				(cast()ui).removeTask(receiveData!size_t(args[1]));
+				break;
+			case "configTask":
+				(cast()ui).configTask(receiveData!Task(args[1]));
 				break;
 			case "changeActiveTask":
 				(cast()ui).changeActiveTask(receiveData!size_t(args[1]));

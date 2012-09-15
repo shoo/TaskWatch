@@ -36,20 +36,30 @@ class ConfigForm: dfl.form.Form
 		initializeConfigForm();
 		
 		//@  Other ConfigForm initialization code here.
+		
+		// デフォルトのボタン
+		btnOk.notifyDefault(true);
+		
+		// OK時の挙動
 		btnOk.click ~= (Object s, EventArgs e)
 		{
 			onConfigApplied();
 			hide();
 		};
+		
+		// 適用時の挙動
 		btnApply.click ~= (Object s, EventArgs e)
 		{
 			onConfigApplied();
 		};
+		
+		// キャンセル時の挙動
 		btnCancel.click ~= (Object s, EventArgs e)
 		{
 			hide();
 		};
 		
+		// 閉じられるときの挙動
 		closing ~= (Object s, CancelEventArgs e)
 		{
 			hide();

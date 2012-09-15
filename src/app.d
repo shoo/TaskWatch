@@ -203,19 +203,19 @@ private:
 	}
 	
 	/// ditto
-	void renameActiveTaskStopWatch()
+	void configActiveTaskStopWatch()
 	{
 		if (_tasks.length == 0)
 			return;
-		
+		_ui.command(["configTask", sendData(_tasks[_activeTaskIndex])]);
 	}
 	
 	/// ditto
-	void confirmActiveTaskStopWatchName(string name)
+	void confirmActiveTaskStopWatchConfig(Task task)
 	{
 		if (_tasks.length == 0)
 			return;
-		_tasks[_activeTaskIndex].name = name;
+		_tasks[_activeTaskIndex] = task;
 	}
 	
 	
@@ -331,12 +331,7 @@ private:
 	void updateDisplay()
 	{
 		auto intDur = cast(Duration)_interruptStopWatch.peek();
-		auto app = appender!(Duration[])();
-		foreach (t; _tasks)
-		{
-			app.put(cast(Duration)t.stopwatch.peek());
-		}
-		_ui.command(["updateDisplay", sendData(intDur), sendData(app.data)]);
+		_ui.command(["updateDisplay", sendData(intDur), sendData(cast(immutable)_tasks.dup)]);
 	}
 	
 	/// ditto
@@ -462,11 +457,11 @@ public:
 		case "disableActiveTaskStopWatch":
 			disableActiveTaskStopWatch();
 			break;
-		case "renameActiveTaskStopWatch":
-			renameActiveTaskStopWatch();
+		case "configActiveTaskStopWatch":
+			configActiveTaskStopWatch();
 			break;
-		case "confirmActiveTaskStopWatchName":
-			confirmActiveTaskStopWatchName(args[1]);
+		case "confirmActiveTaskStopWatchConfig":
+			confirmActiveTaskStopWatchConfig(receiveData!Task(args[1]));
 			break;
 		case "copyActiveTaskStopWatchDuration":
 			copyActiveTaskStopWatchDuration();

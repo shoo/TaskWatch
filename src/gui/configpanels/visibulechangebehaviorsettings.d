@@ -9,6 +9,9 @@ import dfl.all;
 
 import src.gui.configpanels.base, src.sys.config;
 
+/*******************************************************************************
+ * 
+ */
 class VisibleChangeBehaviorSettings: src.gui.configpanels.base.ConfigPanel
 {
 	// Do not modify or move this block of variables.

@@ -15,6 +15,7 @@ class TaskPanel: dfl.panel.Panel
 	// Do not modify or move this block of variables.
 	//~Entice Designer variables begin here.
 	dfl.button.RadioButton radioTask;
+	dfl.label.Label lblName;
 	dfl.button.CheckBox chkToggle;
 	dfl.textbox.TextBox txtDurTask;
 	dfl.button.Button btnCopy;
@@ -39,13 +40,14 @@ class TaskPanel: dfl.panel.Panel
 		with (dockPadding)
 		{
 			left   = 10;
-			top    = 4;
+			top    = 0;
 			right  = 10;
-			bottom = 4;
+			bottom = 0;
 		}
 		radioTask.checked = true;
-		height = 32+4+4;
-		txtDurTask.font = new dfl.all.Font(txtDurTask.font.name, 14.5);
+		lblName.font    = new dfl.all.Font(lblName.font.name,    6);
+		txtDurTask.font = new dfl.all.Font(txtDurTask.font.name, 14);
+		height = 32+lblName.size.height;
 	}
 	
 	
@@ -64,13 +66,15 @@ class TaskPanel: dfl.panel.Panel
 		with (dockPadding)
 		{
 			left   = 10;
-			top    = 2;
+			top    = 0;
 			right  = 10;
-			bottom = 2;
+			bottom = 0;
 		}
 		radioTask.checked = false;
-		height = 16+2+2;
+		height = 16;
+		lblName.font    = new dfl.all.Font(lblName.font.name,    4);
 		txtDurTask.font = new dfl.all.Font(txtDurTask.font.name, 9);
+		height = 16+lblName.size.height;
 	}
 	
 	
@@ -114,13 +118,21 @@ class TaskPanel: dfl.panel.Panel
 		//~DFL Panel
 		name = "TaskPanel";
 		dock = dfl.all.DockStyle.TOP;
-		bounds = dfl.all.Rect(0, 0, 448, 32);
+		bounds = dfl.all.Rect(0, 0, 576, 56);
 		//~DFL dfl.button.RadioButton=radioTask
 		radioTask = new dfl.button.RadioButton();
 		radioTask.name = "radioTask";
 		radioTask.dock = dfl.all.DockStyle.LEFT;
-		radioTask.bounds = dfl.all.Rect(0, 0, 16, 32);
+		radioTask.bounds = dfl.all.Rect(0, 0, 16, 56);
 		radioTask.parent = this;
+		//~DFL dfl.label.Label=lblName
+		lblName = new dfl.label.Label();
+		lblName.name = "lblName";
+		lblName.dock = dfl.all.DockStyle.TOP;
+		lblName.text = "Name";
+		lblName.autoSize = true;
+		lblName.bounds = dfl.all.Rect(16, 0, 560, 18);
+		lblName.parent = this;
 		//~DFL dfl.button.CheckBox=chkToggle
 		chkToggle = new dfl.button.CheckBox();
 		chkToggle.name = "chkToggle";
@@ -128,58 +140,58 @@ class TaskPanel: dfl.panel.Panel
 		chkToggle.text = "Stop";
 		chkToggle.appearance = dfl.all.Appearance.BUTTON;
 		chkToggle.checkState = dfl.all.CheckState.CHECKED;
-		chkToggle.bounds = dfl.all.Rect(16, 0, 64, 32);
+		chkToggle.bounds = dfl.all.Rect(16, 18, 64, 38);
 		chkToggle.parent = this;
 		//~DFL dfl.textbox.TextBox=txtDurTask
 		txtDurTask = new dfl.textbox.TextBox();
 		txtDurTask.name = "txtDurTask";
 		txtDurTask.dock = dfl.all.DockStyle.LEFT;
-		txtDurTask.bounds = dfl.all.Rect(80, 16, 192, 16);
+		txtDurTask.bounds = dfl.all.Rect(80, 18, 192, 38);
 		txtDurTask.parent = this;
 		//~DFL dfl.button.Button=btnCopy
 		btnCopy = new dfl.button.Button();
 		btnCopy.name = "btnCopy";
 		btnCopy.dock = dfl.all.DockStyle.LEFT;
 		btnCopy.text = "Copy";
-		btnCopy.bounds = dfl.all.Rect(272, 16, 48, 16);
+		btnCopy.bounds = dfl.all.Rect(272, 18, 48, 38);
 		btnCopy.parent = this;
 		//~DFL dfl.panel.Panel=panel2
 		panel2 = new dfl.panel.Panel();
 		panel2.name = "panel2";
 		panel2.dock = dfl.all.DockStyle.LEFT;
-		panel2.bounds = dfl.all.Rect(320, 16, 16, 16);
+		panel2.bounds = dfl.all.Rect(320, 18, 16, 38);
 		panel2.parent = this;
 		//~DFL dfl.button.Button=btnReset
 		btnReset = new dfl.button.Button();
 		btnReset.name = "btnReset";
 		btnReset.dock = dfl.all.DockStyle.LEFT;
 		btnReset.text = "Reset";
-		btnReset.bounds = dfl.all.Rect(336, 16, 48, 16);
+		btnReset.bounds = dfl.all.Rect(336, 18, 48, 38);
 		btnReset.parent = this;
 		//~DFL dfl.panel.Panel=panel3
 		panel3 = new dfl.panel.Panel();
 		panel3.name = "panel3";
 		panel3.dock = dfl.all.DockStyle.LEFT;
-		panel3.bounds = dfl.all.Rect(384, 16, 16, 16);
+		panel3.bounds = dfl.all.Rect(384, 18, 16, 38);
 		panel3.parent = this;
 		//~DFL dfl.button.Button=btnRemove
 		btnRemove = new dfl.button.Button();
 		btnRemove.name = "btnRemove";
 		btnRemove.dock = dfl.all.DockStyle.LEFT;
 		btnRemove.text = "Del";
-		btnRemove.bounds = dfl.all.Rect(400, 16, 48, 16);
+		btnRemove.bounds = dfl.all.Rect(400, 18, 48, 38);
 		btnRemove.parent = this;
 		//~DFL dfl.panel.Panel=panel1
 		panel1 = new dfl.panel.Panel();
 		panel1.name = "panel1";
 		panel1.dock = dfl.all.DockStyle.LEFT;
-		panel1.bounds = dfl.all.Rect(448, 16, 16, 16);
+		panel1.bounds = dfl.all.Rect(448, 18, 16, 38);
 		panel1.parent = this;
 		//~DFL dfl.button.Button=btnConfig
 		btnConfig = new dfl.button.Button();
 		btnConfig.name = "btnConfig";
 		btnConfig.dock = dfl.all.DockStyle.LEFT;
-		btnConfig.bounds = dfl.all.Rect(464, 16, 32, 16);
+		btnConfig.bounds = dfl.all.Rect(464, 18, 32, 38);
 		btnConfig.parent = this;
 		//~Entice Designer 0.8.5.02 code ends here.
 	}
