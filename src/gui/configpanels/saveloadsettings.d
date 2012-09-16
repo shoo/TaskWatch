@@ -53,7 +53,32 @@ class SaveLoadSettings: src.gui.configpanels.base.ConfigPanel
 		initializeSaveLoadSettings();
 		
 		//@  Other SaveLoadSettings initialization code here.
-		
+		btnRefFile.click ~= (Object o, EventArgs e)
+		{
+			import std.file;
+			auto dialog = new SaveFileDialog;
+			with (dialog)
+			{
+				checkFileExists  = false;
+				checkPathExists  = true;
+				defaultExt       = ".json";
+				dereferenceLinks = true;
+				fileName         = "data.json";
+				filter           = "*.json データファイル|*.json";
+				filterIndex      = 0;
+				//initialDirectory = getcwd();
+				restoreDirectory = true;
+				showHelp         = true;
+				title            = "自動保存用のデータファイル";
+				validateNames    = true;
+				overwritePrompt     = true;
+			}
+			auto res = dialog.showDialog();
+			if (res == DialogResult.OK)
+			{
+				txtFilename.text = dialog.fileName;
+			}
+		};
 	}
 	
 	
