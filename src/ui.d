@@ -259,6 +259,36 @@ private:
 		{
 			_comm.command(["configActiveTaskStopWatch"]);
 		};
+		// 編集前
+		tp.txtDurTask.gotFocus ~= (Object s, EventArgs e)
+		{
+			tp.strDurTaskUndoData = tp.txtDurTask.text;
+		};
+		// 編集後
+		tp.txtDurTask.lostFocus ~= (Object s, EventArgs e)
+		{
+			if (!tp.chkToggle.checked && tp.txtDurTask.text != tp.strDurTaskUndoData)
+			{
+				import std.regex;
+				auto r = regex(r"^(\d+):(\d{2}):(\d{2})\.(\d{3})$");
+				auto m = match(tp.txtDurTask.text, r);
+				if (m)
+				{
+					import std.conv;
+					auto c = m.captures;
+					Duration d;
+					d += dur!"hours"(to!int(c[1]));
+					d += dur!"minutes"(to!int(c[2]));
+					d += dur!"seconds"(to!int(c[3]));
+					d += dur!"msecs"(to!int(c[4]));
+					_comm.command(["submitActiveTaskStopWatchDuration", sendData(d)]);
+				}
+				else
+				{
+					tp.txtDurTask.text = tp.strDurTaskUndoData;
+				}
+			}
+		};
 		_mainForm.taskPanels.controls.add(tp);
 	}
 	
@@ -334,7 +364,7 @@ private:
 		import std.string: format;
 		string newtxt;
 		newtxt = format("%d:%02d:%02d.%03d", intDur.hours, intDur.minutes, intDur.seconds, intDur.fracSec.msecs);
-		if (_mainForm.txtDurInterrupt.text != newtxt)
+		if (_mainForm.txtDurInterrupt.text != newtxt && (!_mainForm.txtDurInterrupt.focused || _mainForm.chkToggle.checked))
 			_mainForm.txtDurInterrupt.text = newtxt;
 		foreach (i; 0.._mainForm.taskPanels.controls.length)
 		{
@@ -345,7 +375,7 @@ private:
 				p.lblName.text = t.name;
 			auto dur = cast(Duration)t.stopwatch.peek();
 			newtxt = format("%d:%02d:%02d.%03d", dur.hours, dur.minutes, dur.seconds, dur.fracSec.msecs);
-			if (p.txtDurTask.text != newtxt)
+			if (p.txtDurTask.text != newtxt && (!p.txtDurTask.focused || p.chkToggle.checked))
 				p.txtDurTask.text = newtxt;
 		}
 	}
@@ -356,9 +386,7 @@ private:
 	{
 		if (!_mainForm.taskPanels.controls.length)
 			return;
-		import std.stdio; writeln("xxx@@", _mainForm.taskPanels.controls.length);
 		auto p = cast(TaskPanel)_mainForm.taskPanels.controls[idx];
-		import std.stdio; writeln("xxx@@");
 		assert(p);
 		foreach (c2; _mainForm.taskPanels.controls)
 		{

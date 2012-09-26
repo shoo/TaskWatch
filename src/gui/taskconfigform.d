@@ -80,47 +80,27 @@ class TaskConfigForm: dfl.form.Form
 		txtStartTime.lostFocus ~= (Object s, EventArgs e)
 		{
 			import std.regex;
-			auto r = regex(r"^\d{4}/\d{2}/\d{2}\[\d{2}:\d{2}:\d{2}\.\d{3}\]$");
+			auto r = regex(r"^(\d{4})/(\d{2})/(\d{2})\[(\d{2}):(\d{2}):(\d{2})\.(\d{3})\]$");
 			auto m = match(txtStartTime.text, r);
 			if (m)
 			{
-				auto timestr = txtStartTime.text;
-				int task_startTime_year;
-				int task_startTime_month;
-				int task_startTime_day;
-				int task_startTime_hour;
-				int task_startTime_minute;
-				int task_startTime_second;
-				int task_startTime_fracSec_msecs;
-				formattedRead(timestr, "%s/%s/%s[%s:%s:%s.%s]",
-					&task_startTime_year,
-					&task_startTime_month,
-					&task_startTime_day,
-					&task_startTime_hour,
-					&task_startTime_minute,
-					&task_startTime_second,
-					&task_startTime_fracSec_msecs);
+				import std.conv;
+				auto c = m.captures;
 				auto dt = DateTime(
-					task_startTime_year,
-					task_startTime_month,
-					task_startTime_day,
-					task_startTime_hour,
-					task_startTime_minute,
-					task_startTime_second);
-				auto fs = FracSec.from!"msecs"(task_startTime_fracSec_msecs);
+					to!int(c[1]), to!int(c[2]), to!int(c[3]),
+					to!int(c[4]), to!int(c[5]), to!int(c[6]));
+				auto fs = FracSec.from!"msecs"(to!int(c[7]));
 				_task.startTime = SysTime(dt, fs);
 			}
 			else
 			{
 				auto app = appender!string();
-				formattedWrite(app, "%04d/%02d/%02d[%02d:%02d:%02d.%03d]",
-					_task.startTime.year,
-					_task.startTime.month,
-					_task.startTime.day,
-					_task.startTime.hour,
-					_task.startTime.minute,
-					_task.startTime.second,
-					_task.startTime.fracSec.msecs);
+				with (_task.startTime)
+				{
+					formattedWrite(app, "%04d/%02d/%02d[%02d:%02d:%02d.%03d]",
+						year, month, day,
+						hour, minute, second, fracSec.msecs);
+				}
 				txtStartTime.text = app.data;
 			}
 		};

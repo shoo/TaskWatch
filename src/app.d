@@ -182,6 +182,14 @@ private:
 	}
 	
 	/// ditto
+	void submitActiveTaskStopWatchDuration(Duration d)
+	{
+		if (_tasks.length == 0)
+			return;
+		_tasks[_activeTaskIndex].stopwatch.setMeasured(cast(TickDuration)d);
+	}
+	
+	/// ditto
 	void enableActiveTaskStopWatch()
 	{
 		if (_tasks.length == 0)
@@ -428,6 +436,7 @@ public:
 	 *   $(LI confirmActiveTaskStopWatchName(string) )
 	 *   $(LI copyActiveTaskStopWatchDuration() )
 	 *   $(LI changeActiveTaskStopWatch(size_t(id)) )
+	 *   $(LI submitActiveTaskStopWatchDuration(Duration(id)) )
 	 *   $(LI loadData(string) )
 	 *   $(LI loadDataWithFilename() )
 	 *   $(LI saveData() )
@@ -483,6 +492,9 @@ public:
 			break;
 		case "resetActiveTaskStopWatch":
 			resetActiveTaskStopWatch();
+			break;
+		case "submitActiveTaskStopWatchDuration":
+			submitActiveTaskStopWatchDuration(receiveData!Duration(args[1]));
 			break;
 		case "enableActiveTaskStopWatch":
 			enableActiveTaskStopWatch();

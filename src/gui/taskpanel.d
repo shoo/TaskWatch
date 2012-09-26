@@ -27,6 +27,7 @@ class TaskPanel: dfl.panel.Panel
 	dfl.button.Button btnConfig;
 	//~Entice Designer variables end here.
 	
+	string strDurTaskUndoData;
 	
 	/***************************************************************************
 	 * 
