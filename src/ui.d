@@ -213,6 +213,12 @@ private:
 	/***************************************************************************
 	 * イベント
 	 */
+	void changeInterruptState(bool b)
+	{
+		_mainForm.changeIntteruptToggleState(b);
+	}
+	
+	/// 
 	void addTask()
 	{
 		auto tp = new TaskPanel;
@@ -493,6 +499,7 @@ public:
 	 * コマンドは以下(括弧内はパラメータ)
 	 * $(UL
 	 *   $(LI updateDisplay() )
+	 *   $(LI performInterrupt() )
 	 *   $(LI addTask() )
 	 *   $(LI removeTask(size_t(id)) )
 	 *   $(LI changeActiveTask(size_t(id)) )
@@ -524,6 +531,9 @@ public:
 				auto durIntSw = receiveData!Duration(args[1]);
 				auto durTasks = receiveData!(immutable(Task)[])(args[2]);
 				(cast()ui).updateDisplay(durIntSw, durTasks);
+				break;
+			case "changeInterruptState":
+				(cast()ui).changeInterruptState(receiveData!bool(args[1]));
 				break;
 			case "addTask":
 				(cast()ui).addTask();

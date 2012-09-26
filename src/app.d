@@ -364,6 +364,7 @@ private:
 		_timer.start();
 		if (_config.startInterruptWithForeground)
 		{
+			_ui.command(["changeInterruptState", sendData(true)]);
 			startInterruptStopWatch();
 		}
 	}
@@ -375,6 +376,7 @@ private:
 		_timer.stop();
 		if (_config.stopInterruptWithBackground)
 		{
+			_ui.command(["changeInterruptState", sendData(false)]);
 			stopInterruptStopWatch();
 		}
 	}

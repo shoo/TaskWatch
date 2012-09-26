@@ -28,6 +28,23 @@ class MainForm: dfl.form.Form
 	dfl.panel.Panel taskPanels;
 	//~Entice Designer variables end here.
 	
+	/***************************************************************************
+	 * 
+	 */
+	void changeIntteruptToggleState(bool b)
+	{
+		if (chkToggle.checked != b)
+			chkToggle.checked = b;
+		
+		if (b)
+		{
+			chkToggle.text = "Stop";
+		}
+		else
+		{
+			chkToggle.text = "Run";
+		}
+	}
 	
 	/***************************************************************************
 	 * 
@@ -48,14 +65,7 @@ class MainForm: dfl.form.Form
 		chkToggle.textAlign = ContentAlignment.MIDDLE_CENTER;
 		chkToggle.click ~= (Control c, EventArgs e)
 		{
-			if (chkToggle.checked)
-			{
-				chkToggle.text = "Stop";
-			}
-			else
-			{
-				chkToggle.text = "Run";
-			}
+			changeIntteruptToggleState(chkToggle.checked);
 		};
 	}
 	

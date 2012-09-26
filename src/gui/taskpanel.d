@@ -32,6 +32,24 @@ class TaskPanel: dfl.panel.Panel
 	/***************************************************************************
 	 * 
 	 */
+	void changeIntteruptToggleState(bool b)
+	{
+		if (chkToggle.checked != b)
+			chkToggle.checked = b;
+		
+		if (b)
+		{
+			chkToggle.text = "Stop";
+		}
+		else
+		{
+			chkToggle.text = "Run";
+		}
+	}
+	
+	/***************************************************************************
+	 * 
+	 */
 	void activateTask()
 	{
 		foreach (c; controls)
@@ -99,14 +117,7 @@ class TaskPanel: dfl.panel.Panel
 		btnCopy.textAlign   = ContentAlignment.MIDDLE_CENTER;
 		chkToggle.click ~= (Control c, EventArgs e)
 		{
-			if (chkToggle.checked)
-			{
-				chkToggle.text = "Stop";
-			}
-			else
-			{
-				chkToggle.text = "Run";
-			}
+			changeIntteruptToggleState(chkToggle.checked);
 		};
 		
 	}
