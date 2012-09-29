@@ -27,6 +27,7 @@ private:
 	shared SharedControl _sharedControl;
 	debug DebugForm      _dbgForm;
 	MainContextMenu      _contextMenu;
+	string               _strDurInterruptUndoData;
 	
 	/***************************************************************************
 	 * 
@@ -50,6 +51,37 @@ private:
 			else
 			{
 				_comm.command(["stopInterruptStopWatch"]);
+			}
+		};
+		// 編集前
+		_mainForm.txtDurInterrupt.gotFocus ~= (Object s, EventArgs e)
+		{
+			_strDurInterruptUndoData = _mainForm.txtDurInterrupt.text;
+		};
+		// 編集後
+		_mainForm.txtDurInterrupt.lostFocus ~= (Object s, EventArgs e)
+		{
+			if (!_mainForm.chkToggle.checked
+			 && _mainForm.txtDurInterrupt.text != _strDurInterruptUndoData)
+			{
+				import std.regex;
+				import std.math: lrint;
+				auto r = regex(r"^(\d+):(\d+):(\d+)\.(\d+)$");
+				auto m = match(_mainForm.txtDurInterrupt.text, r);
+				if (m)
+				{
+					import std.conv;
+					auto c = m.captures;
+					Duration d;
+					d += dur!"hours"(to!int(c[1]));
+					d += dur!"minutes"(to!int(c[2]));
+					d += dur!"usecs"(lrint(to!real(c[3]~"."~c[4])*1000000));
+					_comm.command(["submitInterruptStopWatchDuration", sendData(d)]);
+				}
+				else
+				{
+					_mainForm.txtDurInterrupt.text = _strDurInterruptUndoData;
+				}
 			}
 		};
 		
@@ -273,10 +305,12 @@ private:
 		// 編集後
 		tp.txtDurTask.lostFocus ~= (Object s, EventArgs e)
 		{
-			if (!tp.chkToggle.checked && tp.txtDurTask.text != tp.strDurTaskUndoData)
+			if (!tp.chkToggle.checked
+			 && tp.txtDurTask.text != tp.strDurTaskUndoData)
 			{
 				import std.regex;
-				auto r = regex(r"^(\d+):(\d{2}):(\d{2})\.(\d{3})$");
+				import std.math: lrint;
+				auto r = regex(r"^(\d+):(\d+):(\d+)\.(\d+)$");
 				auto m = match(tp.txtDurTask.text, r);
 				if (m)
 				{
@@ -285,8 +319,7 @@ private:
 					Duration d;
 					d += dur!"hours"(to!int(c[1]));
 					d += dur!"minutes"(to!int(c[2]));
-					d += dur!"seconds"(to!int(c[3]));
-					d += dur!"msecs"(to!int(c[4]));
+					d += dur!"usecs"(lrint(to!real(c[3]~"."~c[4])*1000000));
 					_comm.command(["submitActiveTaskStopWatchDuration", sendData(d)]);
 				}
 				else
@@ -368,8 +401,10 @@ private:
 	{
 		assert(_mainForm.taskPanels.controls.length == tasks.length);
 		import std.string: format;
+		import std.math: lrint;
 		string newtxt;
-		newtxt = format("%d:%02d:%02d.%03d", intDur.hours, intDur.minutes, intDur.seconds, intDur.fracSec.msecs);
+		long fracsec = lrint((cast(real)intDur.fracSec.usecs)/1000);
+		newtxt = format("%d:%02d:%02d.%03d", intDur.hours, intDur.minutes, intDur.seconds, fracsec);
 		if (_mainForm.txtDurInterrupt.text != newtxt && (!_mainForm.txtDurInterrupt.focused || _mainForm.chkToggle.checked))
 			_mainForm.txtDurInterrupt.text = newtxt;
 		foreach (i; 0.._mainForm.taskPanels.controls.length)
@@ -380,7 +415,8 @@ private:
 			if (p.lblName.text != t.name)
 				p.lblName.text = t.name;
 			auto dur = cast(Duration)t.stopwatch.peek();
-			newtxt = format("%d:%02d:%02d.%03d", dur.hours, dur.minutes, dur.seconds, dur.fracSec.msecs);
+			fracsec = lrint((cast(real)dur.fracSec.usecs)/1000);
+			newtxt = format("%d:%02d:%02d.%03d", dur.hours, dur.minutes, dur.seconds, fracsec);
 			if (p.txtDurTask.text != newtxt && (!p.txtDurTask.focused || p.chkToggle.checked))
 				p.txtDurTask.text = newtxt;
 		}

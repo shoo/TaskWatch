@@ -120,6 +120,11 @@ private:
 		}
 	}
 	
+	/// ditto
+	void submitInterruptStopWatchDuration(Duration d)
+	{
+		_interruptStopWatch.setMeasured(cast(TickDuration)d);
+	}
 	
 	/***************************************************************************
 	 * 積み上げタスク時間用ストップウォッチ管理
@@ -427,6 +432,7 @@ public:
 	 *   $(LI stopInterruptStopWatch() )
 	 *   $(LI resetInterruptStopWatch() )
 	 *   $(LI copyInterruptStopWatchDuration() )
+	 *   $(LI submitInterruptStopWatchDuration(Duration(id)) )
 	 *   $(LI addTaskStopWatch() )
 	 *   $(LI removeActiveTaskStopWatch() )
 	 *   $(LI startActiveTaskStopWatch() )
@@ -479,6 +485,9 @@ public:
 			break;
 		case "copyInterruptStopWatchDuration":
 			copyInterruptStopWatchDuration();
+			break;
+		case "submitInterruptStopWatchDuration":
+			submitInterruptStopWatchDuration(receiveData!Duration(args[1]));
 			break;
 		case "addTaskStopWatch":
 			addTaskStopWatch();
